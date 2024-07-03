@@ -13,5 +13,9 @@ endif()
 
 project (pigui)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(
+    ${PROJECT_NAME}
+    src/main.cpp
+)
+add_subdirectory(src/components)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}" "${EXTRA_INCLUDES}")
