@@ -73,7 +73,10 @@ void App::run_loop()
         this->last_measured_loop_tick = SDL_GetTicks();
 
         this->handle_events();
+
+        SDL_Texture *root = SDL_GetRenderTarget(this->renderer);
         this->run_loop_iteration();
+        SDL_SetRenderTarget(this->renderer, root);
 
         elapsed_time = SDL_GetTicks() - this->last_measured_loop_tick;
         if (elapsed_time < APP_FPS_DELAY)
