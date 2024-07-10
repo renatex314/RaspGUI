@@ -19,3 +19,4 @@ add_executable(
 )
 add_subdirectory(src/components)
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}" "${EXTRA_INCLUDES}")
+target_link_libraries(${PROJECT_NAME} PUBLIC ${EXTRA_LIBS})

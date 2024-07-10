@@ -1,7 +1,7 @@
-#include "../context/context.hpp"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
+#include "../context/context.hpp"
 
 #ifndef _WIDGET_H
 #define _WIDGET_H
@@ -10,6 +10,7 @@ class Widget : public Context
 {
 public:
     Widget(Context *context);
+    ~Widget();
     SDL_Texture *draw();
 
     bool get_needs_redraw();
@@ -31,6 +32,8 @@ protected:
 
 private:
     Widget();
+
+    void resize_texture();
 
     bool needs_redraw;
     int x, y;

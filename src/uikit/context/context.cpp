@@ -8,18 +8,13 @@ Context::Context()
 Context::Context(SDL_Renderer *renderer)
 {
     this->renderer = renderer;
-    this->init();
+    this->drawer = NULL;
 }
 
 Context::Context(Context *context)
 {
     this->renderer = context->get_renderer();
-    this->init();
-}
-
-void Context::init()
-{
-    this->drawer = NULL;
+    this->drawer = context->get_drawer();
 }
 
 Drawer *Context::get_drawer()

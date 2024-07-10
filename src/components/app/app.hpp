@@ -1,5 +1,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "../../uikit/context/context.hpp"
+#include "../../uikit/manager/manager.hpp"
+#include "../../components/simple_widget/simple_widget.hpp"
 
 #ifndef _APP_H
 #define _APP_H
@@ -29,6 +32,9 @@ private:
     SDL_Renderer *renderer;
     SDL_Surface *window_surface;
     struct WindowSize window_size;
+
+    SimpleWidget *simple_widget;
+    Manager *ui_manager;
 
     void run_loop();
     void run_loop_iteration();

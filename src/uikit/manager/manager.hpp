@@ -9,14 +9,17 @@ class Manager : public Context, public Drawer
 {
 public:
     Manager(Context *context);
-    void handle_redraw_request();
+    void render();
+    void dispatch_redraw_request();
     void attach_root(Widget *root);
     Widget *get_root();
 
 private:
     Manager();
 
+    bool needs_redraw;
     Widget *root;
+    SDL_Texture *window_texture;
 };
 
 #endif

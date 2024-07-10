@@ -16,6 +16,12 @@ Widget::Widget(Context *context) : Context(context)
     this->texture = SDL_CreateTexture(this->get_renderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 0, 0);
 };
 
+Widget::~Widget()
+{
+    if (this->texture != NULL)
+        SDL_DestroyTexture(this->texture);
+}
+
 bool Widget::get_needs_redraw()
 {
     return this->needs_redraw;
@@ -59,16 +65,31 @@ void Widget::set_y(int y)
 void Widget::set_width(int width)
 {
     this->width = width;
+    this->resize_texture();
 }
 
 void Widget::set_height(int height)
 {
     this->height = height;
+    this->resize_texture();
 }
 
 void Widget::set_z_index(int z_index)
 {
     this->z_index = z_index;
+}
+
+void Widget::resize_texture()
+{
+    SDL_Texture *default_texture = SDL_GetRenderTarget(this->get_renderer());
+
+    SDL_Texture *resized_texture = SDL_CreateTexture(this->get_renderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
+    SDL_SetRenderTarget(this->get_renderer(), resized_texture);
+    SDL_RenderCopy(this->get_renderer(), this->texture, NULL, NULL);
+    SDL_SetRenderTarget(this->get_renderer(), default_texture);
+    SDL_DestroyTexture(this->texture);
+
+    this->texture = resized_texture;
 }
 
 void Widget::dispatch_redraw_request()
@@ -77,7 +98,7 @@ void Widget::dispatch_redraw_request()
 
     Drawer *drawer = this->get_drawer();
     if (drawer != NULL)
-        drawer->handle_redraw_request();
+        drawer->dispatch_redraw_request();
 }
 
 // To Be Implemented by Subclasses
@@ -85,14 +106,16 @@ void Widget::perform_draw(SDL_Renderer *renderer) {};
 
 SDL_Texture *Widget::draw()
 {
-    SDL_Renderer *renderer = this->get_renderer();
-    SDL_Texture *default_texture = SDL_GetRenderTarget(renderer);
-    SDL_SetRenderTarget(renderer, this->texture);
-
     if (this->needs_redraw)
+    {
+        SDL_Renderer *renderer = this->get_renderer();
+        SDL_Texture *default_texture = SDL_GetRenderTarget(renderer);
+        SDL_SetRenderTarget(renderer, this->texture);
         this->perform_draw(renderer);
+        SDL_SetRenderTarget(renderer, default_texture);
 
-    SDL_SetRenderTarget(renderer, default_texture);
+        this->needs_redraw = false;
+    }
 
     return this->texture;
 }

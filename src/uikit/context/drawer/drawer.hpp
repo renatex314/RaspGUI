@@ -4,7 +4,7 @@
 class Drawer
 {
 public:
-    virtual void handle_redraw_request() = 0;
+    virtual void dispatch_redraw_request() = 0;
 };
 
 #endif

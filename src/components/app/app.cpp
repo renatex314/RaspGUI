@@ -13,10 +13,20 @@ App::App(int width, int height)
     {
         throw std::runtime_error("Erro ao iniciar o SDL !!!");
     }
+
+    Context *ui_context = new Context(this->renderer);
+    this->ui_manager = new Manager(ui_context);
+    this->simple_widget = new SimpleWidget(this->ui_manager);
+
+    this->ui_manager->attach_root(this->simple_widget);
+
+    delete ui_context;
 }
 
 App::~App()
 {
+    delete this->ui_manager;
+    delete this->simple_widget;
     SDL_DestroyRenderer(this->renderer);
     SDL_DestroyWindow(this->window);
     SDL_Quit();
@@ -37,7 +47,7 @@ bool App::init_sdl()
     SDL_CreateWindowAndRenderer(
         this->window_size.width,
         this->window_size.height,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_RESIZABLE,
         &this->window,
         &this->renderer);
 
@@ -55,6 +65,7 @@ bool App::init_sdl()
 
 void App::run()
 {
+    this->ui_manager->render();
     this->run_loop();
 }
 
@@ -73,10 +84,7 @@ void App::run_loop()
         this->last_measured_loop_tick = SDL_GetTicks();
 
         this->handle_events();
-
-        SDL_Texture *root = SDL_GetRenderTarget(this->renderer);
         this->run_loop_iteration();
-        SDL_SetRenderTarget(this->renderer, root);
 
         elapsed_time = SDL_GetTicks() - this->last_measured_loop_tick;
         if (elapsed_time < APP_FPS_DELAY)
@@ -88,10 +96,7 @@ void App::run_loop()
 
 void App::run_loop_iteration()
 {
-    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-    SDL_RenderClear(this->renderer);
-
-    SDL_RenderPresent(this->renderer);
+    this->ui_manager->render();
 }
 
 void App::handle_events()
@@ -100,6 +105,13 @@ void App::handle_events()
     {
         switch (this->current_event.type)
         {
+        case SDL_WINDOWEVENT:
+            if (this->current_event.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+                this->ui_manager->dispatch_redraw_request();
+            }
+            break;
+
         case SDL_QUIT:
             this->running = false;
             break;
