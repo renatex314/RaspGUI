@@ -1,5 +1,7 @@
 #include "manager.hpp"
 
+using namespace uikit;
+
 Manager::Manager() : Context((SDL_Renderer *)NULL)
 {
     throw std::runtime_error("Manager should be instantiated with a Context object.");

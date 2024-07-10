@@ -6,7 +6,7 @@
 #ifndef _SIMPLE_WIDGET_H
 #define _SIMPLE_WIDGET_H
 
-class SimpleWidget : public Widget
+class SimpleWidget : public uikit::Widget
 {
 public:
     SimpleWidget(Context *context);

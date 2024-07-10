@@ -1,10 +1,13 @@
 #ifndef _DRAWER_HPP
 #define _DRAWER_HPP
 
-class Drawer
+namespace uikit
 {
-public:
-    virtual void dispatch_redraw_request() = 0;
-};
+    class Drawer
+    {
+    public:
+        virtual void dispatch_redraw_request() = 0;
+    };
+}
 
 #endif

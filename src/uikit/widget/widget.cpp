@@ -1,5 +1,7 @@
 #include "widget.hpp"
 
+using namespace uikit;
+
 Widget::Widget() : Context((SDL_Renderer *)NULL)
 {
     throw std::runtime_error("Widget should be instantiated with a Context object.");

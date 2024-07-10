@@ -1,5 +1,7 @@
 #include "context.hpp"
 
+using namespace uikit;
+
 Context::Context()
 {
     throw std::runtime_error("Context should be instantiated with a renderer or another Context.");

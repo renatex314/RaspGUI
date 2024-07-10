@@ -5,23 +5,26 @@
 #ifndef _CONTEXT_H
 #define _CONTEXT_H
 
-class Context
+namespace uikit
 {
-public:
-    Context(SDL_Renderer *renderer);
-    Context(Context *context);
+    class Context
+    {
+    public:
+        Context(SDL_Renderer *renderer);
+        Context(Context *context);
 
-    Drawer *get_drawer();
-    void set_drawer(Drawer *drawer);
+        Drawer *get_drawer();
+        void set_drawer(Drawer *drawer);
 
-protected:
-    SDL_Renderer *get_renderer();
+    protected:
+        SDL_Renderer *get_renderer();
 
-private:
-    Context();
+    private:
+        Context();
 
-    Drawer *drawer;
-    SDL_Renderer *renderer;
-};
+        Drawer *drawer;
+        SDL_Renderer *renderer;
+    };
+}
 
 #endif

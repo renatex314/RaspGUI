@@ -34,7 +34,7 @@ private:
     struct WindowSize window_size;
 
     SimpleWidget *simple_widget;
-    Manager *ui_manager;
+    uikit::Manager *ui_manager;
 
     void run_loop();
     void run_loop_iteration();

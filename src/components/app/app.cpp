@@ -14,8 +14,8 @@ App::App(int width, int height)
         throw std::runtime_error("Erro ao iniciar o SDL !!!");
     }
 
-    Context *ui_context = new Context(this->renderer);
-    this->ui_manager = new Manager(ui_context);
+    uikit::Context *ui_context = new uikit::Context(this->renderer);
+    this->ui_manager = new uikit::Manager(ui_context);
     this->simple_widget = new SimpleWidget(this->ui_manager);
 
     this->ui_manager->attach_root(this->simple_widget);
