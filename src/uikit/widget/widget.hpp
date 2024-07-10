@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "../context/context.hpp"
+#include "../event/event.hpp"
 
 #ifndef _WIDGET_H
 #define _WIDGET_H
@@ -28,6 +29,11 @@ namespace uikit
         void set_width(int width);
         void set_height(int height);
         void set_z_index(int z_index);
+
+        virtual void on_mouse_down(event::mouse::MouseEvent event);
+        virtual void on_mouse_up(event::mouse::MouseEvent event);
+        virtual void on_mouse_move(event::mouse::MouseEvent event);
+        virtual void on_mouse_wheel(event::mouse::MouseEvent event);
 
     protected:
         virtual void perform_draw(SDL_Renderer *renderer);

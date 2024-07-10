@@ -126,5 +126,7 @@ void App::handle_events()
         default:
             break;
         }
+
+        this->ui_manager->handle_event(this->current_event);
     }
 }

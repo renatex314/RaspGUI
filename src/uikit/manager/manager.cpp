@@ -58,3 +58,71 @@ void Manager::dispatch_redraw_request()
 {
     this->needs_redraw = true;
 }
+
+event::mouse::MouseEvent Manager::get_mouse_event(SDL_Event event)
+{
+    event::mouse::MouseEvent mouse_event;
+    mouse_event.x = event.button.x;
+    mouse_event.y = event.button.y;
+    mouse_event.wheel_x = event.wheel.x;
+    mouse_event.wheel_y = event.wheel.y;
+
+    switch (event.button.button)
+    {
+    case SDL_BUTTON_LEFT:
+        mouse_event.button = event::mouse::MOUSE_BUTTON_LEFT;
+        break;
+    case SDL_BUTTON_MIDDLE:
+        mouse_event.button = event::mouse::MOUSE_BUTTON_MIDDLE;
+        break;
+    case SDL_BUTTON_RIGHT:
+        mouse_event.button = event::mouse::MOUSE_BUTTON_RIGHT;
+        break;
+
+    default:
+        mouse_event.button = event::mouse::MOUSE_BUTTON_LEFT;
+        break;
+    }
+
+    switch (event.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+        mouse_event.type = event::mouse::MOUSE_DOWN;
+        break;
+    case SDL_MOUSEBUTTONUP:
+        mouse_event.type = event::mouse::MOUSE_UP;
+        break;
+    case SDL_MOUSEMOTION:
+        mouse_event.type = event::mouse::MOUSE_MOVE;
+        break;
+    }
+
+    return mouse_event;
+}
+
+void Manager::handle_event(SDL_Event sdl_event)
+{
+    if (sdl_event.type == SDL_MOUSEBUTTONUP || sdl_event.type == SDL_MOUSEBUTTONDOWN || sdl_event.type == SDL_MOUSEMOTION || sdl_event.type == SDL_MOUSEWHEEL)
+    {
+        event::mouse::MouseEvent event = this->get_mouse_event(sdl_event);
+        Widget *root = this->get_root();
+        if (root != NULL)
+        {
+            switch (event.type)
+            {
+            case event::mouse::MOUSE_DOWN:
+                root->on_mouse_down(event);
+                break;
+            case event::mouse::MOUSE_UP:
+                root->on_mouse_up(event);
+                break;
+            case event::mouse::MOUSE_MOVE:
+                root->on_mouse_move(event);
+                break;
+            case event::mouse::MOUSE_WHEEL:
+                root->on_mouse_wheel(event);
+                break;
+            }
+        }
+    }
+}

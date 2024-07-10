@@ -121,3 +121,9 @@ SDL_Texture *Widget::draw()
 
     return this->texture;
 }
+
+// Methods that can be overridden by subclasses
+void Widget::on_mouse_down(event::mouse::MouseEvent event) {};
+void Widget::on_mouse_up(event::mouse::MouseEvent event) {};
+void Widget::on_mouse_move(event::mouse::MouseEvent event) {};
+void Widget::on_mouse_wheel(event::mouse::MouseEvent event) {};
