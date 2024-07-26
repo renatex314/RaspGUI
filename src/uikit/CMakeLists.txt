@@ -5,4 +5,5 @@ add_library(
     widget/widget.cpp
     context/context.cpp
     manager/manager.cpp
+    utils/utils.cpp
 )

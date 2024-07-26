@@ -10,6 +10,7 @@ Manager::Manager() : Context((SDL_Renderer *)NULL)
 Manager::Manager(Context *context) : Context(context)
 {
     this->set_drawer(this);
+    this->set_assets_handler(this);
     this->window_texture = SDL_GetRenderTarget(this->get_renderer());
     this->needs_redraw = true;
 };
@@ -125,4 +126,16 @@ void Manager::handle_event(SDL_Event sdl_event)
             }
         }
     }
+}
+
+std::string Manager::get_resource_path(std::string resource_name)
+{
+    std::string resource_path = this->get_application_path() + "assets/" + resource_name;
+
+    if (Utils::file_exists(resource_path))
+    {
+        return resource_path;
+    }
+
+    throw std::runtime_error("Resource not found: " + resource_path);
 }

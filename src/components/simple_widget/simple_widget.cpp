@@ -10,6 +10,40 @@ SimpleWidget::SimpleWidget(Context *context) : Widget(context)
     this->is_mouse_down = false;
     this->mouse_x = 0;
     this->mouse_y = 0;
+
+    this->font = TTF_OpenFont(context->get_assets_handler()->get_resource_path("jetbrains-mono-regular.ttf").c_str(), 24);
+    SDL_CreateThread([](void *data) -> int
+                     {
+        SimpleWidget *widget = (SimpleWidget *)data;
+        while (true)
+        {
+            widget->dispatch_redraw_request();
+            SDL_Delay(16);
+        }
+        return 0; }, "redraw-thread", this);
+}
+
+// Draws the text in the middle of the screen
+void SimpleWidget::draw_current_time(SDL_Renderer *renderer)
+{
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    char buffer[256];
+    sprintf(buffer, "%02d:%02d:%02d", ltm->tm_hour, ltm->tm_min, ltm->tm_sec);
+
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface *surface = TTF_RenderText_Solid(this->font, buffer, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    int text_width, text_height;
+    SDL_QueryTexture(texture, NULL, NULL, &text_width, &text_height);
+
+    SDL_Rect dstrect = {400 - text_width / 2, 300 - text_height / 2, text_width, text_height};
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 void SimpleWidget::perform_draw(SDL_Renderer *renderer)
@@ -22,6 +56,8 @@ void SimpleWidget::perform_draw(SDL_Renderer *renderer)
     SDL_RenderDrawLine(renderer, this->mouse_x, this->mouse_y, 800, 0);
     SDL_RenderDrawLine(renderer, 0, 0, this->mouse_x, this->mouse_y);
     SDL_RenderDrawLine(renderer, 0, 600, this->mouse_x, this->mouse_y);
+
+    this->draw_current_time(renderer);
 }
 
 void SimpleWidget::on_mouse_down(event::mouse::MouseEvent event)

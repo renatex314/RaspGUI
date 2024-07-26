@@ -44,6 +44,13 @@ bool App::init_sdl()
         return false;
     }
 
+    if (TTF_Init() < 0)
+    {
+        std::cout << "Erro ao iniciar o SDL TTF: " << TTF_GetError() << std::endl;
+
+        return false;
+    }
+
     SDL_CreateWindowAndRenderer(
         this->window_size.width,
         this->window_size.height,

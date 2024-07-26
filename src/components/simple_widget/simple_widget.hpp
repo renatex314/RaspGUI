@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL2/SDL_thread.h>
+#include <SDL2/SDL_ttf.h>
 #include "../../uikit/widget/widget.hpp"
 #include "../../uikit/context/context.hpp"
 
@@ -16,6 +17,8 @@ public:
 
 private:
     void perform_draw(SDL_Renderer *renderer);
+    void draw_current_time(SDL_Renderer *renderer);
+    TTF_Font *font;
 
     bool is_mouse_down;
     int mouse_x, mouse_y;

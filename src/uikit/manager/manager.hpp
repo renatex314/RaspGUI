@@ -1,5 +1,6 @@
 #include "../context/context.hpp"
 #include "../context/drawer/drawer.hpp"
+#include "../context/assets_handler/assets_handler.hpp"
 #include "../widget/widget.hpp"
 #include "../event/event.hpp"
 
@@ -8,7 +9,7 @@
 
 namespace uikit
 {
-    class Manager : public Context, public Drawer
+    class Manager : public Context, public Drawer, public AssetsHandler
     {
     public:
         Manager(Context *context);
@@ -16,6 +17,7 @@ namespace uikit
         void render();
         void dispatch_redraw_request();
         void handle_event(SDL_Event event);
+        std::string get_resource_path(std::string resource_name);
         event::mouse::MouseEvent get_mouse_event(SDL_Event event);
 
         void attach_root(Widget *root);

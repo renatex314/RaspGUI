@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include "../../uikit/context/context.hpp"
 #include "../../uikit/manager/manager.hpp"
