@@ -29,6 +29,20 @@ namespace uikit
                 MouseEventType type;
                 MouseButton button;
             };
+        };
+
+        namespace keyboard
+        {
+            enum KeyEventType
+            {
+                KEY_DOWN,
+                KEY_UP
+            };
+            struct KeyEvent
+            {
+                KeyEventType type;
+                int sdl_key_code;
+            };
         }
     }
 }

@@ -19,6 +19,7 @@ namespace uikit
         void handle_event(SDL_Event event);
         std::string get_resource_path(std::string resource_name);
         event::mouse::MouseEvent get_mouse_event(SDL_Event event);
+        event::keyboard::KeyEvent get_keyboard_event(SDL_Event event);
 
         void attach_root(Widget *root);
         Widget *get_root();

@@ -11,16 +11,26 @@ SimpleWidget::SimpleWidget(Context *context) : Widget(context)
     this->mouse_x = 0;
     this->mouse_y = 0;
 
-    this->font = TTF_OpenFont(context->get_assets_handler()->get_resource_path("jetbrains-mono-regular.ttf").c_str(), 24);
-    SDL_CreateThread([](void *data) -> int
-                     {
-        SimpleWidget *widget = (SimpleWidget *)data;
-        while (true)
-        {
-            widget->dispatch_redraw_request();
-            SDL_Delay(16);
-        }
-        return 0; }, "redraw-thread", this);
+    this->font = TTF_OpenFont(context->get_assets_handler()->get_resource_path("jetbrains-mono-regular.ttf").c_str(), 32);
+    this->running_thread = SDL_CreateThread(SimpleWidget::redraw_timer, "redraw-thread", this);
+}
+
+SimpleWidget::~SimpleWidget()
+{
+    pthread_cancel(SDL_GetThreadID(this->running_thread));
+}
+
+int SDLCALL SimpleWidget::redraw_timer(void *data)
+{
+    SimpleWidget *widget = (SimpleWidget *)data;
+
+    while (true)
+    {
+        SDL_Delay(1000 / 60);
+        widget->dispatch_redraw_request();
+    }
+
+    return 0;
 }
 
 // Draws the text in the middle of the screen
@@ -33,13 +43,14 @@ void SimpleWidget::draw_current_time(SDL_Renderer *renderer)
     sprintf(buffer, "%02d:%02d:%02d", ltm->tm_hour, ltm->tm_min, ltm->tm_sec);
 
     SDL_Color color = {255, 255, 255, 255};
-    SDL_Surface *surface = TTF_RenderText_Solid(this->font, buffer, color);
+    SDL_Surface *surface = TTF_RenderText_Blended(this->font, buffer, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     int text_width, text_height;
     SDL_QueryTexture(texture, NULL, NULL, &text_width, &text_height);
 
-    SDL_Rect dstrect = {400 - text_width / 2, 300 - text_height / 2, text_width, text_height};
+    SDL_Rect dstrect = {this->get_width() / 2 - text_width / 2, this->get_height() / 2 - text_height / 2, text_width, text_height};
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_ADD);
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 
     SDL_FreeSurface(surface);
@@ -48,14 +59,10 @@ void SimpleWidget::draw_current_time(SDL_Renderer *renderer)
 
 void SimpleWidget::perform_draw(SDL_Renderer *renderer)
 {
-    SDL_SetRenderDrawColor(renderer, this->bg_intensity, this->bg_intensity, this->bg_intensity, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawLine(renderer, this->mouse_x, this->mouse_y, 800, 600);
-    SDL_RenderDrawLine(renderer, this->mouse_x, this->mouse_y, 800, 0);
-    SDL_RenderDrawLine(renderer, 0, 0, this->mouse_x, this->mouse_y);
-    SDL_RenderDrawLine(renderer, 0, 600, this->mouse_x, this->mouse_y);
 
     this->draw_current_time(renderer);
 }
@@ -84,4 +91,9 @@ void SimpleWidget::on_mouse_up(event::mouse::MouseEvent event)
     this->is_mouse_down = false;
     this->bg_intensity = 200;
     this->dispatch_redraw_request();
+}
+
+void SimpleWidget::on_key_up(event::keyboard::KeyEvent event)
+{
+    std::cout << "Widget received key Up: " << event.sdl_key_code << std::endl;
 }

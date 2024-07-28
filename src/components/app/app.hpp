@@ -3,6 +3,7 @@
 #include <iostream>
 #include "../../uikit/context/context.hpp"
 #include "../../uikit/manager/manager.hpp"
+#include "../../uikit/widget_group/widget_group.hpp"
 #include "../../components/simple_widget/simple_widget.hpp"
 
 #ifndef _APP_H
@@ -35,6 +36,7 @@ private:
     struct WindowSize window_size;
 
     SimpleWidget *simple_widget;
+    uikit::WidgetGroup *test_widget;
     uikit::Manager *ui_manager;
 
     void run_loop();

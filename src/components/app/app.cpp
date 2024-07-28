@@ -17,8 +17,11 @@ App::App(int width, int height)
     uikit::Context *ui_context = new uikit::Context(this->renderer);
     this->ui_manager = new uikit::Manager(ui_context);
     this->simple_widget = new SimpleWidget(this->ui_manager);
+    this->simple_widget->set_margin_bottom(100);
 
-    this->ui_manager->attach_root(this->simple_widget);
+    this->test_widget = new uikit::WidgetGroup(this->ui_manager);
+
+    this->ui_manager->attach_root(this->test_widget);
 
     delete ui_context;
 }
@@ -27,6 +30,7 @@ App::~App()
 {
     delete this->ui_manager;
     delete this->simple_widget;
+    delete this->test_widget;
     SDL_DestroyRenderer(this->renderer);
     SDL_DestroyWindow(this->window);
     SDL_Quit();
@@ -51,10 +55,13 @@ bool App::init_sdl()
         return false;
     }
 
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+    SDL_SetHint(SDL_HINT_RENDER_LINE_METHOD, "3");
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     SDL_CreateWindowAndRenderer(
         this->window_size.width,
         this->window_size.height,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_RESIZABLE,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI,
         &this->window,
         &this->renderer);
 

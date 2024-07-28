@@ -40,8 +40,8 @@ void Manager::render()
         {
             SDL_Texture *output = root->draw();
             SDL_Rect output_rect;
-            output_rect.x = root->get_x();
-            output_rect.y = root->get_y();
+            output_rect.x = root->get_x() + (root->get_margin_left() - root->get_margin_right());
+            output_rect.y = root->get_y() + (root->get_margin_top() - root->get_margin_bottom());
             output_rect.w = root->get_width();
             output_rect.h = root->get_height();
 
@@ -101,13 +101,31 @@ event::mouse::MouseEvent Manager::get_mouse_event(SDL_Event event)
     return mouse_event;
 }
 
+event::keyboard::KeyEvent Manager::get_keyboard_event(SDL_Event event)
+{
+    event::keyboard::KeyEvent keyboard_event;
+    keyboard_event.sdl_key_code = event.key.keysym.sym;
+
+    switch (event.type)
+    {
+    case SDL_KEYDOWN:
+        keyboard_event.type = event::keyboard::KEY_DOWN;
+        break;
+    case SDL_KEYUP:
+        keyboard_event.type = event::keyboard::KEY_UP;
+        break;
+    }
+
+    return keyboard_event;
+}
+
 void Manager::handle_event(SDL_Event sdl_event)
 {
     if (sdl_event.type == SDL_MOUSEBUTTONUP || sdl_event.type == SDL_MOUSEBUTTONDOWN || sdl_event.type == SDL_MOUSEMOTION || sdl_event.type == SDL_MOUSEWHEEL)
     {
         event::mouse::MouseEvent event = this->get_mouse_event(sdl_event);
         Widget *root = this->get_root();
-        if (root != NULL)
+        if (root != nullptr)
         {
             switch (event.type)
             {
@@ -123,6 +141,37 @@ void Manager::handle_event(SDL_Event sdl_event)
             case event::mouse::MOUSE_WHEEL:
                 root->on_mouse_wheel(event);
                 break;
+            }
+        }
+    }
+
+    if (sdl_event.type == SDL_KEYDOWN || sdl_event.type == SDL_KEYUP)
+    {
+        event::keyboard::KeyEvent event = this->get_keyboard_event(sdl_event);
+        Widget *root = this->get_root();
+        if (root != nullptr)
+        {
+            switch (event.type)
+            {
+            case event::keyboard::KEY_DOWN:
+                root->on_key_down(event);
+                break;
+            case event::keyboard::KEY_UP:
+                root->on_key_up(event);
+                break;
+            }
+        }
+    }
+
+    if (sdl_event.type == SDL_WINDOWEVENT)
+    {
+        if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+            uikit::Widget *root = this->get_root();
+
+            if (root != nullptr)
+            {
+                root->set_size(sdl_event.window.data1, sdl_event.window.data2);
             }
         }
     }
