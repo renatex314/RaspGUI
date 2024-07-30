@@ -20,6 +20,7 @@ Widget::Widget(Context *context) : Context(context)
     this->margin_right = 0;
     this->margin_bottom = 0;
     this->z_index = 0;
+    this->parent = nullptr;
     this->texture = SDL_CreateTexture(this->get_renderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 0, 0);
 };
 
@@ -84,7 +85,17 @@ int Widget::get_z_index()
     return this->z_index;
 }
 
-void Widget::set_allows_resizing(bool allows_resizing)
+Widget *Widget::get_parent()
+{
+    return this->parent;
+}
+
+void Widget::set_parent(Widget *parent)
+{
+    this->parent = parent;
+}
+
+void Widget::set_layout_allows_resizing(bool allows_resizing)
 {
     this->allows_resizing = allows_resizing;
 }
@@ -128,6 +139,8 @@ void Widget::set_size(int width, int height)
         this->resize_texture();
         this->dispatch_redraw_request();
         this->on_resize();
+
+        this->execute_listeners(WidgetEventType::RESIZE, NO_ACTION, NULL);
     }
 }
 
@@ -186,8 +199,102 @@ void Widget::dispatch_redraw_request()
         drawer->dispatch_redraw_request();
 }
 
-// To Be Implemented by Subclasses
-void Widget::perform_draw(SDL_Renderer *renderer) {};
+void Widget::dispatch_event(WidgetEventType event_type, void *event)
+{
+    EventAction action = NO_ACTION;
+
+    switch (event_type)
+    {
+    case WidgetEventType::MOUSE:
+    {
+        event::mouse::MouseEvent *mouse_event = (event::mouse::MouseEvent *)event;
+        action = mouse_event->type;
+
+        switch (mouse_event->type)
+        {
+        case event::mouse::MOUSE_DOWN:
+            this->on_mouse_down(*mouse_event);
+            break;
+        case event::mouse::MOUSE_UP:
+            this->on_mouse_up(*mouse_event);
+            break;
+        case event::mouse::MOUSE_MOVE:
+            this->on_mouse_move(*mouse_event);
+            break;
+        case event::mouse::MOUSE_WHEEL:
+            this->on_mouse_wheel(*mouse_event);
+            break;
+        }
+        break;
+    }
+    case WidgetEventType::KEYBOARD:
+    {
+        event::keyboard::KeyEvent *keyboard_event = (event::keyboard::KeyEvent *)event;
+        action = keyboard_event->type;
+
+        switch (keyboard_event->type)
+        {
+        case event::keyboard::KEY_DOWN:
+            this->on_key_down(*keyboard_event);
+            break;
+        case event::keyboard::KEY_UP:
+            this->on_key_up(*keyboard_event);
+            break;
+        }
+        break;
+    }
+    }
+
+    this->execute_listeners(event_type, action, event);
+}
+
+EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener)
+{
+    this->event_listeners[event_type][action].insert(listener);
+
+    return listener;
+}
+
+EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventListenerCallback listener)
+{
+    return this->attach_listener(event_type, NO_ACTION, listener);
+}
+
+void Widget::remove_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener)
+{
+    this->event_listeners[event_type][action].erase(listener);
+}
+
+void Widget::clear_listeners(WidgetEventType event_type, EventAction action)
+{
+    this->event_listeners[event_type][action].clear();
+}
+
+void Widget::clear_all_listeners()
+{
+    this->event_listeners.clear();
+}
+
+void Widget::execute_listeners(WidgetEventType event_type, EventAction action, void *event)
+{
+    for (EventListenerCallback listener : this->event_listeners[event_type][action])
+    {
+        try
+        {
+            int start_time = SDL_GetTicks();
+            listener(event);
+
+            if (SDL_GetTicks() - start_time > LISTENER_TIMEOUT_WARNING)
+            {
+                std::cout << "Warning: Event listener took more than " << LISTENER_TIMEOUT_WARNING << "ms to execute." << std::endl;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "An error occurred while executing an event listener: " << e.what() << std::endl;
+        }
+    }
+}
 
 SDL_Texture *Widget::draw()
 {
@@ -206,6 +313,7 @@ SDL_Texture *Widget::draw()
 }
 
 // Methods that can be overridden by subclasses
+void Widget::perform_draw(SDL_Renderer *renderer) {};
 void Widget::on_mouse_down(event::mouse::MouseEvent event) {};
 void Widget::on_mouse_up(event::mouse::MouseEvent event) {};
 void Widget::on_mouse_move(event::mouse::MouseEvent event) {};

@@ -1,6 +1,9 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
+typedef int EventAction;
+#define NO_ACTION -1
+
 namespace uikit
 {
     namespace event

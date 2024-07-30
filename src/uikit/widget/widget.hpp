@@ -1,14 +1,31 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
+#include <map>
+#include <set>
 #include "../context/context.hpp"
 #include "../event/event.hpp"
 
 #ifndef _WIDGET_H
 #define _WIDGET_H
 
+#define LISTENER_TIMEOUT_WARNING 50
+
+typedef void (*EventListenerCallback)(void *event);
+
 namespace uikit
 {
+    /*
+        The type of event that the widget is dispatching.
+        Not all types of events can be dispatched. Ex: "RESIZE"
+    */
+    enum WidgetEventType
+    {
+        MOUSE,
+        KEYBOARD,
+        RESIZE
+    };
+
     class Widget : public Context
     {
     public:
@@ -27,9 +44,26 @@ namespace uikit
         int get_margin_right();
         int get_margin_bottom();
         int get_z_index();
+        Widget *get_parent();
 
         void dispatch_redraw_request();
-        void set_allows_resizing(bool allows_resizing);
+        void dispatch_event(WidgetEventType event_type, void *event);
+        /*
+            Attach a listener to an event type and action.
+            @return The listener function.
+
+            TODO: Insert a params argument to pass parameters to the listener.
+        */
+        EventListenerCallback attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener);
+        /*
+            Attach a listener to an event type and action. It considers that the event has no action.
+            @return The listener function.
+        */
+        EventListenerCallback attach_listener(WidgetEventType event_type, EventListenerCallback listener);
+        void remove_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener);
+        void clear_listeners(WidgetEventType event_type, EventAction action);
+        void clear_all_listeners();
+        void set_layout_allows_resizing(bool allows_resizing);
         void set_x(int x);
         void set_y(int y);
         void set_position(int x, int y);
@@ -53,11 +87,13 @@ namespace uikit
 
     protected:
         virtual void perform_draw(SDL_Renderer *renderer);
+        void set_parent(Widget *parent);
 
     private:
         Widget();
 
         void resize_texture();
+        void execute_listeners(WidgetEventType event_type, EventAction action, void *event);
 
         bool needs_redraw, allows_resizing;
         int x, y;
@@ -65,6 +101,8 @@ namespace uikit
         int margin_left, margin_top, margin_right, margin_bottom;
         int z_index;
         SDL_Texture *texture;
+        Widget *parent;
+        std::map<WidgetEventType, std::map<EventAction, std::set<EventListenerCallback>>> event_listeners;
     };
 }
 

@@ -17,11 +17,19 @@ App::App(int width, int height)
     uikit::Context *ui_context = new uikit::Context(this->renderer);
     this->ui_manager = new uikit::Manager(ui_context);
     this->simple_widget = new SimpleWidget(this->ui_manager);
-    this->simple_widget->set_margin_bottom(100);
+    // this->simple_widget->set_margin_bottom(100);
+
+    this->simple_widget->attach_listener(
+        uikit::WidgetEventType::RESIZE,
+        [](void *event)
+        {
+            std::cout << "SimpleWidget RESIZE event !!!" << std::endl;
+        });
 
     this->test_widget = new uikit::WidgetGroup(this->ui_manager);
 
-    this->ui_manager->attach_root(this->test_widget);
+    // this->ui_manager->attach_root(this->test_widget);
+    this->ui_manager->attach_root(this->simple_widget);
 
     delete ui_context;
 }
@@ -104,6 +112,11 @@ void App::run_loop()
         if (elapsed_time < APP_FPS_DELAY)
         {
             SDL_Delay(APP_FPS_DELAY - elapsed_time);
+        }
+
+        if (elapsed_time > APP_TIMEOUT_WARNING)
+        {
+            std::cout << "Warning: main application loop took more than " << APP_TIMEOUT_WARNING << "ms !!!" << std::endl;
         }
     }
 }

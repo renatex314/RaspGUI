@@ -11,6 +11,7 @@
 
 // 1000 ms / 60 fps = 16 ms
 #define APP_FPS_DELAY 16
+#define APP_TIMEOUT_WARNING 100
 
 struct WindowSize
 {

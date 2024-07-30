@@ -127,21 +127,7 @@ void Manager::handle_event(SDL_Event sdl_event)
         Widget *root = this->get_root();
         if (root != nullptr)
         {
-            switch (event.type)
-            {
-            case event::mouse::MOUSE_DOWN:
-                root->on_mouse_down(event);
-                break;
-            case event::mouse::MOUSE_UP:
-                root->on_mouse_up(event);
-                break;
-            case event::mouse::MOUSE_MOVE:
-                root->on_mouse_move(event);
-                break;
-            case event::mouse::MOUSE_WHEEL:
-                root->on_mouse_wheel(event);
-                break;
-            }
+            root->dispatch_event(WidgetEventType::MOUSE, &event);
         }
     }
 
@@ -151,15 +137,7 @@ void Manager::handle_event(SDL_Event sdl_event)
         Widget *root = this->get_root();
         if (root != nullptr)
         {
-            switch (event.type)
-            {
-            case event::keyboard::KEY_DOWN:
-                root->on_key_down(event);
-                break;
-            case event::keyboard::KEY_UP:
-                root->on_key_up(event);
-                break;
-            }
+            root->dispatch_event(WidgetEventType::KEYBOARD, &event);
         }
     }
 
