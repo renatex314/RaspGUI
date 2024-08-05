@@ -248,21 +248,29 @@ void Widget::dispatch_event(WidgetEventType event_type, void *event)
     this->execute_listeners(event_type, action, event);
 }
 
-EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener)
+EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener, void *params)
 {
-    this->event_listeners[event_type][action].insert(listener);
+    this->event_listeners[event_type][action].insert(std::tuple<EventListenerCallback, void *>({listener, params}));
 
     return listener;
 }
 
-EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventListenerCallback listener)
+EventListenerCallback Widget::attach_listener(WidgetEventType event_type, EventListenerCallback listener, void *params)
 {
-    return this->attach_listener(event_type, NO_ACTION, listener);
+    return this->attach_listener(event_type, NO_ACTION, listener, params);
 }
 
 void Widget::remove_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener)
 {
-    this->event_listeners[event_type][action].erase(listener);
+    for (std::set<std::tuple<EventListenerCallback, void *>>::iterator it = this->event_listeners[event_type][action].begin(); it != this->event_listeners[event_type][action].end(); it++)
+    {
+        if (std::get<0>(*it) == listener)
+        {
+            this->event_listeners[event_type][action].erase(it);
+
+            break;
+        }
+    }
 }
 
 void Widget::clear_listeners(WidgetEventType event_type, EventAction action)
@@ -277,12 +285,16 @@ void Widget::clear_all_listeners()
 
 void Widget::execute_listeners(WidgetEventType event_type, EventAction action, void *event)
 {
-    for (EventListenerCallback listener : this->event_listeners[event_type][action])
+    for (std::tuple<EventListenerCallback, void *> listener : this->event_listeners[event_type][action])
     {
         try
         {
             int start_time = SDL_GetTicks();
-            listener(event);
+
+            EventListenerCallback event_listener = std::get<0>(listener);
+            void *data = std::get<1>(listener);
+
+            event_listener(event, data);
 
             if (SDL_GetTicks() - start_time > LISTENER_TIMEOUT_WARNING)
             {

@@ -11,7 +11,7 @@
 
 #define LISTENER_TIMEOUT_WARNING 50
 
-typedef void (*EventListenerCallback)(void *event);
+typedef void (*EventListenerCallback)(void *event, void *params);
 
 namespace uikit
 {
@@ -51,15 +51,13 @@ namespace uikit
         /*
             Attach a listener to an event type and action.
             @return The listener function.
-
-            TODO: Insert a params argument to pass parameters to the listener.
         */
-        EventListenerCallback attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener);
+        EventListenerCallback attach_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener, void *params);
         /*
             Attach a listener to an event type and action. It considers that the event has no action.
             @return The listener function.
         */
-        EventListenerCallback attach_listener(WidgetEventType event_type, EventListenerCallback listener);
+        EventListenerCallback attach_listener(WidgetEventType event_type, EventListenerCallback listener, void *params);
         void remove_listener(WidgetEventType event_type, EventAction action, EventListenerCallback listener);
         void clear_listeners(WidgetEventType event_type, EventAction action);
         void clear_all_listeners();
@@ -102,7 +100,14 @@ namespace uikit
         int z_index;
         SDL_Texture *texture;
         Widget *parent;
-        std::map<WidgetEventType, std::map<EventAction, std::set<EventListenerCallback>>> event_listeners;
+
+        std::map<
+            WidgetEventType,
+            std::map<
+                EventAction,
+                std::set<
+                    std::tuple<EventListenerCallback, void *>>>>
+            event_listeners;
     };
 }
 

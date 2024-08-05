@@ -13,6 +13,17 @@ SimpleWidget::SimpleWidget(Context *context) : Widget(context)
 
     this->font = TTF_OpenFont(context->get_assets_handler()->get_resource_path("jetbrains-mono-regular.ttf").c_str(), 32);
     this->running_thread = SDL_CreateThread(SimpleWidget::redraw_timer, "redraw-thread", this);
+
+    this->attach_listener(
+        WidgetEventType::MOUSE,
+        event::mouse::MOUSE_MOVE,
+        [](void *event, void *params)
+        {
+            SimpleWidget *widget = (SimpleWidget *)params;
+
+            std::cout << "Mouse move event: " << widget->mouse_x << ", " << widget->mouse_y << std::endl;
+        },
+        this);
 }
 
 SimpleWidget::~SimpleWidget()

@@ -19,13 +19,6 @@ App::App(int width, int height)
     this->simple_widget = new SimpleWidget(this->ui_manager);
     // this->simple_widget->set_margin_bottom(100);
 
-    this->simple_widget->attach_listener(
-        uikit::WidgetEventType::RESIZE,
-        [](void *event)
-        {
-            std::cout << "SimpleWidget RESIZE event !!!" << std::endl;
-        });
-
     this->test_widget = new uikit::WidgetGroup(this->ui_manager);
 
     // this->ui_manager->attach_root(this->test_widget);
